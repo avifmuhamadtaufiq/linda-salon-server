@@ -1,7 +1,19 @@
-# source: https://us1.prisma.sh/public-powerpuppy-574/linda-salon-server/dev
-# timestamp: Tue Aug 07 2018 00:49:06 GMT+0700 (Western Indonesia Time)
+# source: http://localhost:4466
+# timestamp: Tue Aug 07 2018 01:38:53 GMT+0700 (Western Indonesia Time)
 
-type AggregatePost {
+type AggregateBooking {
+  count: Int!
+}
+
+type AggregateFile {
+  count: Int!
+}
+
+type AggregateItem {
+  count: Int!
+}
+
+type AggregateProduct {
   count: Int!
 }
 
@@ -14,143 +26,100 @@ type BatchPayload {
   count: Long!
 }
 
-scalar DateTime
-
-"""
-The `Long` scalar type represents non-fractional signed whole numeric values.
-Long can represent values between -(2^63) and 2^63 - 1.
-"""
-scalar Long
-
-type Mutation {
-  createPost(data: PostCreateInput!): Post!
-  createUser(data: UserCreateInput!): User!
-  updatePost(data: PostUpdateInput!, where: PostWhereUniqueInput!): Post
-  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
-  deletePost(where: PostWhereUniqueInput!): Post
-  deleteUser(where: UserWhereUniqueInput!): User
-  upsertPost(where: PostWhereUniqueInput!, create: PostCreateInput!, update: PostUpdateInput!): Post!
-  upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
-  updateManyPosts(data: PostUpdateInput!, where: PostWhereInput): BatchPayload!
-  updateManyUsers(data: UserUpdateInput!, where: UserWhereInput): BatchPayload!
-  deleteManyPosts(where: PostWhereInput): BatchPayload!
-  deleteManyUsers(where: UserWhereInput): BatchPayload!
-}
-
-enum MutationType {
-  CREATED
-  UPDATED
-  DELETED
-}
-
-"""An object with an ID"""
-interface Node {
-  """The id of the object."""
-  id: ID!
-}
-
-"""Information about pagination in a connection."""
-type PageInfo {
-  """When paginating forwards, are there more items?"""
-  hasNextPage: Boolean!
-
-  """When paginating backwards, are there more items?"""
-  hasPreviousPage: Boolean!
-
-  """When paginating backwards, the cursor to continue."""
-  startCursor: String
-
-  """When paginating forwards, the cursor to continue."""
-  endCursor: String
-}
-
-type Post implements Node {
+type Booking implements Node {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  isPublished: Boolean!
-  title: String!
-  text: String!
-  author(where: UserWhereInput): User!
+  items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item!]
+  status: BookingStatus!
+  userBooking(where: UserWhereInput): User
 }
 
 """A connection to a list of items."""
-type PostConnection {
+type BookingConnection {
   """Information to aid in pagination."""
   pageInfo: PageInfo!
 
   """A list of edges."""
-  edges: [PostEdge]!
-  aggregate: AggregatePost!
+  edges: [BookingEdge]!
+  aggregate: AggregateBooking!
 }
 
-input PostCreateInput {
-  isPublished: Boolean
-  title: String!
-  text: String!
-  author: UserCreateOneWithoutPostsInput!
+input BookingCreateInput {
+  status: BookingStatus
+  items: ItemCreateManyWithoutBookingInput
+  userBooking: UserCreateOneWithoutBookingInput
 }
 
-input PostCreateManyWithoutAuthorInput {
-  create: [PostCreateWithoutAuthorInput!]
-  connect: [PostWhereUniqueInput!]
+input BookingCreateManyWithoutUserBookingInput {
+  create: [BookingCreateWithoutUserBookingInput!]
+  connect: [BookingWhereUniqueInput!]
 }
 
-input PostCreateWithoutAuthorInput {
-  isPublished: Boolean
-  title: String!
-  text: String!
+input BookingCreateOneWithoutItemsInput {
+  create: BookingCreateWithoutItemsInput
+  connect: BookingWhereUniqueInput
+}
+
+input BookingCreateWithoutItemsInput {
+  status: BookingStatus
+  userBooking: UserCreateOneWithoutBookingInput
+}
+
+input BookingCreateWithoutUserBookingInput {
+  status: BookingStatus
+  items: ItemCreateManyWithoutBookingInput
 }
 
 """An edge in a connection."""
-type PostEdge {
+type BookingEdge {
   """The item at the end of the edge."""
-  node: Post!
+  node: Booking!
 
   """A cursor for use in pagination."""
   cursor: String!
 }
 
-enum PostOrderByInput {
+enum BookingOrderByInput {
   id_ASC
   id_DESC
   createdAt_ASC
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
-  isPublished_ASC
-  isPublished_DESC
-  title_ASC
-  title_DESC
-  text_ASC
-  text_DESC
+  status_ASC
+  status_DESC
 }
 
-type PostPreviousValues {
+type BookingPreviousValues {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
-  isPublished: Boolean!
-  title: String!
-  text: String!
+  status: BookingStatus!
 }
 
-type PostSubscriptionPayload {
+enum BookingStatus {
+  PENDING
+  PROCCESS
+  PAID
+}
+
+type BookingSubscriptionPayload {
   mutation: MutationType!
-  node: Post
+  node: Booking
   updatedFields: [String!]
-  previousValues: PostPreviousValues
+  previousValues: BookingPreviousValues
 }
 
-input PostSubscriptionWhereInput {
+input BookingSubscriptionWhereInput {
   """Logical AND on all given filters."""
-  AND: [PostSubscriptionWhereInput!]
+  AND: [BookingSubscriptionWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [PostSubscriptionWhereInput!]
+  OR: [BookingSubscriptionWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [PostSubscriptionWhereInput!]
+  NOT: [BookingSubscriptionWhereInput!]
 
   """
   The subscription event gets dispatched when it's listed in mutation_in
@@ -171,51 +140,67 @@ input PostSubscriptionWhereInput {
   The subscription event gets only dispatched when some of the field names included in this list have been updated
   """
   updatedFields_contains_some: [String!]
-  node: PostWhereInput
+  node: BookingWhereInput
 }
 
-input PostUpdateInput {
-  isPublished: Boolean
-  title: String
-  text: String
-  author: UserUpdateOneWithoutPostsInput
+input BookingUpdateInput {
+  status: BookingStatus
+  items: ItemUpdateManyWithoutBookingInput
+  userBooking: UserUpdateOneWithoutBookingInput
 }
 
-input PostUpdateManyWithoutAuthorInput {
-  create: [PostCreateWithoutAuthorInput!]
-  connect: [PostWhereUniqueInput!]
-  disconnect: [PostWhereUniqueInput!]
-  delete: [PostWhereUniqueInput!]
-  update: [PostUpdateWithWhereUniqueWithoutAuthorInput!]
-  upsert: [PostUpsertWithWhereUniqueWithoutAuthorInput!]
+input BookingUpdateManyWithoutUserBookingInput {
+  create: [BookingCreateWithoutUserBookingInput!]
+  connect: [BookingWhereUniqueInput!]
+  disconnect: [BookingWhereUniqueInput!]
+  delete: [BookingWhereUniqueInput!]
+  update: [BookingUpdateWithWhereUniqueWithoutUserBookingInput!]
+  upsert: [BookingUpsertWithWhereUniqueWithoutUserBookingInput!]
 }
 
-input PostUpdateWithoutAuthorDataInput {
-  isPublished: Boolean
-  title: String
-  text: String
+input BookingUpdateOneWithoutItemsInput {
+  create: BookingCreateWithoutItemsInput
+  connect: BookingWhereUniqueInput
+  delete: Boolean
+  update: BookingUpdateWithoutItemsDataInput
+  upsert: BookingUpsertWithoutItemsInput
 }
 
-input PostUpdateWithWhereUniqueWithoutAuthorInput {
-  where: PostWhereUniqueInput!
-  data: PostUpdateWithoutAuthorDataInput!
+input BookingUpdateWithoutItemsDataInput {
+  status: BookingStatus
+  userBooking: UserUpdateOneWithoutBookingInput
 }
 
-input PostUpsertWithWhereUniqueWithoutAuthorInput {
-  where: PostWhereUniqueInput!
-  update: PostUpdateWithoutAuthorDataInput!
-  create: PostCreateWithoutAuthorInput!
+input BookingUpdateWithoutUserBookingDataInput {
+  status: BookingStatus
+  items: ItemUpdateManyWithoutBookingInput
 }
 
-input PostWhereInput {
+input BookingUpdateWithWhereUniqueWithoutUserBookingInput {
+  where: BookingWhereUniqueInput!
+  data: BookingUpdateWithoutUserBookingDataInput!
+}
+
+input BookingUpsertWithoutItemsInput {
+  update: BookingUpdateWithoutItemsDataInput!
+  create: BookingCreateWithoutItemsInput!
+}
+
+input BookingUpsertWithWhereUniqueWithoutUserBookingInput {
+  where: BookingWhereUniqueInput!
+  update: BookingUpdateWithoutUserBookingDataInput!
+  create: BookingCreateWithoutUserBookingInput!
+}
+
+input BookingWhereInput {
   """Logical AND on all given filters."""
-  AND: [PostWhereInput!]
+  AND: [BookingWhereInput!]
 
   """Logical OR on all given filters."""
-  OR: [PostWhereInput!]
+  OR: [BookingWhereInput!]
 
   """Logical NOT on all given filters combined by AND."""
-  NOT: [PostWhereInput!]
+  NOT: [BookingWhereInput!]
   id: ID
 
   """All values that are not equal to given value."""
@@ -300,104 +285,994 @@ input PostWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
-  isPublished: Boolean
+  status: BookingStatus
 
   """All values that are not equal to given value."""
-  isPublished_not: Boolean
-  title: String
-
-  """All values that are not equal to given value."""
-  title_not: String
+  status_not: BookingStatus
 
   """All values that are contained in given list."""
-  title_in: [String!]
+  status_in: [BookingStatus!]
 
   """All values that are not contained in given list."""
-  title_not_in: [String!]
-
-  """All values less than the given value."""
-  title_lt: String
-
-  """All values less than or equal the given value."""
-  title_lte: String
-
-  """All values greater than the given value."""
-  title_gt: String
-
-  """All values greater than or equal the given value."""
-  title_gte: String
-
-  """All values containing the given string."""
-  title_contains: String
-
-  """All values not containing the given string."""
-  title_not_contains: String
-
-  """All values starting with the given string."""
-  title_starts_with: String
-
-  """All values not starting with the given string."""
-  title_not_starts_with: String
-
-  """All values ending with the given string."""
-  title_ends_with: String
-
-  """All values not ending with the given string."""
-  title_not_ends_with: String
-  text: String
-
-  """All values that are not equal to given value."""
-  text_not: String
-
-  """All values that are contained in given list."""
-  text_in: [String!]
-
-  """All values that are not contained in given list."""
-  text_not_in: [String!]
-
-  """All values less than the given value."""
-  text_lt: String
-
-  """All values less than or equal the given value."""
-  text_lte: String
-
-  """All values greater than the given value."""
-  text_gt: String
-
-  """All values greater than or equal the given value."""
-  text_gte: String
-
-  """All values containing the given string."""
-  text_contains: String
-
-  """All values not containing the given string."""
-  text_not_contains: String
-
-  """All values starting with the given string."""
-  text_starts_with: String
-
-  """All values not starting with the given string."""
-  text_not_starts_with: String
-
-  """All values ending with the given string."""
-  text_ends_with: String
-
-  """All values not ending with the given string."""
-  text_not_ends_with: String
-  author: UserWhereInput
+  status_not_in: [BookingStatus!]
+  items_every: ItemWhereInput
+  items_some: ItemWhereInput
+  items_none: ItemWhereInput
+  userBooking: UserWhereInput
 }
 
-input PostWhereUniqueInput {
+input BookingWhereUniqueInput {
+  id: ID
+}
+
+scalar DateTime
+
+type File implements Node {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  filename: String
+  mimetype: String!
+  encoding: String!
+  url: String!
+  userPhoto(where: UserWhereInput): User
+}
+
+"""A connection to a list of items."""
+type FileConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [FileEdge]!
+  aggregate: AggregateFile!
+}
+
+input FileCreateInput {
+  filename: String
+  mimetype: String!
+  encoding: String!
+  url: String!
+  userPhoto: UserCreateOneWithoutPhotoInput
+}
+
+input FileCreateOneWithoutUserPhotoInput {
+  create: FileCreateWithoutUserPhotoInput
+  connect: FileWhereUniqueInput
+}
+
+input FileCreateWithoutUserPhotoInput {
+  filename: String
+  mimetype: String!
+  encoding: String!
+  url: String!
+}
+
+"""An edge in a connection."""
+type FileEdge {
+  """The item at the end of the edge."""
+  node: File!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum FileOrderByInput {
+  id_ASC
+  id_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  filename_ASC
+  filename_DESC
+  mimetype_ASC
+  mimetype_DESC
+  encoding_ASC
+  encoding_DESC
+  url_ASC
+  url_DESC
+}
+
+type FilePreviousValues {
+  id: ID!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  filename: String
+  mimetype: String!
+  encoding: String!
+  url: String!
+}
+
+type FileSubscriptionPayload {
+  mutation: MutationType!
+  node: File
+  updatedFields: [String!]
+  previousValues: FilePreviousValues
+}
+
+input FileSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [FileSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [FileSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [FileSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: FileWhereInput
+}
+
+input FileUpdateInput {
+  filename: String
+  mimetype: String
+  encoding: String
+  url: String
+  userPhoto: UserUpdateOneWithoutPhotoInput
+}
+
+input FileUpdateOneWithoutUserPhotoInput {
+  create: FileCreateWithoutUserPhotoInput
+  connect: FileWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: FileUpdateWithoutUserPhotoDataInput
+  upsert: FileUpsertWithoutUserPhotoInput
+}
+
+input FileUpdateWithoutUserPhotoDataInput {
+  filename: String
+  mimetype: String
+  encoding: String
+  url: String
+}
+
+input FileUpsertWithoutUserPhotoInput {
+  update: FileUpdateWithoutUserPhotoDataInput!
+  create: FileCreateWithoutUserPhotoInput!
+}
+
+input FileWhereInput {
+  """Logical AND on all given filters."""
+  AND: [FileWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [FileWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [FileWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
+  updatedAt: DateTime
+
+  """All values that are not equal to given value."""
+  updatedAt_not: DateTime
+
+  """All values that are contained in given list."""
+  updatedAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  updatedAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  updatedAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  updatedAt_lte: DateTime
+
+  """All values greater than the given value."""
+  updatedAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  updatedAt_gte: DateTime
+  filename: String
+
+  """All values that are not equal to given value."""
+  filename_not: String
+
+  """All values that are contained in given list."""
+  filename_in: [String!]
+
+  """All values that are not contained in given list."""
+  filename_not_in: [String!]
+
+  """All values less than the given value."""
+  filename_lt: String
+
+  """All values less than or equal the given value."""
+  filename_lte: String
+
+  """All values greater than the given value."""
+  filename_gt: String
+
+  """All values greater than or equal the given value."""
+  filename_gte: String
+
+  """All values containing the given string."""
+  filename_contains: String
+
+  """All values not containing the given string."""
+  filename_not_contains: String
+
+  """All values starting with the given string."""
+  filename_starts_with: String
+
+  """All values not starting with the given string."""
+  filename_not_starts_with: String
+
+  """All values ending with the given string."""
+  filename_ends_with: String
+
+  """All values not ending with the given string."""
+  filename_not_ends_with: String
+  mimetype: String
+
+  """All values that are not equal to given value."""
+  mimetype_not: String
+
+  """All values that are contained in given list."""
+  mimetype_in: [String!]
+
+  """All values that are not contained in given list."""
+  mimetype_not_in: [String!]
+
+  """All values less than the given value."""
+  mimetype_lt: String
+
+  """All values less than or equal the given value."""
+  mimetype_lte: String
+
+  """All values greater than the given value."""
+  mimetype_gt: String
+
+  """All values greater than or equal the given value."""
+  mimetype_gte: String
+
+  """All values containing the given string."""
+  mimetype_contains: String
+
+  """All values not containing the given string."""
+  mimetype_not_contains: String
+
+  """All values starting with the given string."""
+  mimetype_starts_with: String
+
+  """All values not starting with the given string."""
+  mimetype_not_starts_with: String
+
+  """All values ending with the given string."""
+  mimetype_ends_with: String
+
+  """All values not ending with the given string."""
+  mimetype_not_ends_with: String
+  encoding: String
+
+  """All values that are not equal to given value."""
+  encoding_not: String
+
+  """All values that are contained in given list."""
+  encoding_in: [String!]
+
+  """All values that are not contained in given list."""
+  encoding_not_in: [String!]
+
+  """All values less than the given value."""
+  encoding_lt: String
+
+  """All values less than or equal the given value."""
+  encoding_lte: String
+
+  """All values greater than the given value."""
+  encoding_gt: String
+
+  """All values greater than or equal the given value."""
+  encoding_gte: String
+
+  """All values containing the given string."""
+  encoding_contains: String
+
+  """All values not containing the given string."""
+  encoding_not_contains: String
+
+  """All values starting with the given string."""
+  encoding_starts_with: String
+
+  """All values not starting with the given string."""
+  encoding_not_starts_with: String
+
+  """All values ending with the given string."""
+  encoding_ends_with: String
+
+  """All values not ending with the given string."""
+  encoding_not_ends_with: String
+  url: String
+
+  """All values that are not equal to given value."""
+  url_not: String
+
+  """All values that are contained in given list."""
+  url_in: [String!]
+
+  """All values that are not contained in given list."""
+  url_not_in: [String!]
+
+  """All values less than the given value."""
+  url_lt: String
+
+  """All values less than or equal the given value."""
+  url_lte: String
+
+  """All values greater than the given value."""
+  url_gt: String
+
+  """All values greater than or equal the given value."""
+  url_gte: String
+
+  """All values containing the given string."""
+  url_contains: String
+
+  """All values not containing the given string."""
+  url_not_contains: String
+
+  """All values starting with the given string."""
+  url_starts_with: String
+
+  """All values not starting with the given string."""
+  url_not_starts_with: String
+
+  """All values ending with the given string."""
+  url_ends_with: String
+
+  """All values not ending with the given string."""
+  url_not_ends_with: String
+  userPhoto: UserWhereInput
+}
+
+input FileWhereUniqueInput {
+  id: ID
+  url: String
+}
+
+type Item implements Node {
+  id: ID!
+  amount: Int!
+  product(where: ProductWhereInput): Product!
+  booking(where: BookingWhereInput): Booking!
+}
+
+"""A connection to a list of items."""
+type ItemConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [ItemEdge]!
+  aggregate: AggregateItem!
+}
+
+input ItemCreateInput {
+  amount: Int!
+  product: ProductCreateOneWithoutItemInput!
+  booking: BookingCreateOneWithoutItemsInput!
+}
+
+input ItemCreateManyWithoutBookingInput {
+  create: [ItemCreateWithoutBookingInput!]
+  connect: [ItemWhereUniqueInput!]
+}
+
+input ItemCreateOneWithoutProductInput {
+  create: ItemCreateWithoutProductInput
+  connect: ItemWhereUniqueInput
+}
+
+input ItemCreateWithoutBookingInput {
+  amount: Int!
+  product: ProductCreateOneWithoutItemInput!
+}
+
+input ItemCreateWithoutProductInput {
+  amount: Int!
+  booking: BookingCreateOneWithoutItemsInput!
+}
+
+"""An edge in a connection."""
+type ItemEdge {
+  """The item at the end of the edge."""
+  node: Item!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum ItemOrderByInput {
+  id_ASC
+  id_DESC
+  amount_ASC
+  amount_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type ItemPreviousValues {
+  id: ID!
+  amount: Int!
+}
+
+type ItemSubscriptionPayload {
+  mutation: MutationType!
+  node: Item
+  updatedFields: [String!]
+  previousValues: ItemPreviousValues
+}
+
+input ItemSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [ItemSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [ItemSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [ItemSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: ItemWhereInput
+}
+
+input ItemUpdateInput {
+  amount: Int
+  product: ProductUpdateOneWithoutItemInput
+  booking: BookingUpdateOneWithoutItemsInput
+}
+
+input ItemUpdateManyWithoutBookingInput {
+  create: [ItemCreateWithoutBookingInput!]
+  connect: [ItemWhereUniqueInput!]
+  disconnect: [ItemWhereUniqueInput!]
+  delete: [ItemWhereUniqueInput!]
+  update: [ItemUpdateWithWhereUniqueWithoutBookingInput!]
+  upsert: [ItemUpsertWithWhereUniqueWithoutBookingInput!]
+}
+
+input ItemUpdateOneWithoutProductInput {
+  create: ItemCreateWithoutProductInput
+  connect: ItemWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: ItemUpdateWithoutProductDataInput
+  upsert: ItemUpsertWithoutProductInput
+}
+
+input ItemUpdateWithoutBookingDataInput {
+  amount: Int
+  product: ProductUpdateOneWithoutItemInput
+}
+
+input ItemUpdateWithoutProductDataInput {
+  amount: Int
+  booking: BookingUpdateOneWithoutItemsInput
+}
+
+input ItemUpdateWithWhereUniqueWithoutBookingInput {
+  where: ItemWhereUniqueInput!
+  data: ItemUpdateWithoutBookingDataInput!
+}
+
+input ItemUpsertWithoutProductInput {
+  update: ItemUpdateWithoutProductDataInput!
+  create: ItemCreateWithoutProductInput!
+}
+
+input ItemUpsertWithWhereUniqueWithoutBookingInput {
+  where: ItemWhereUniqueInput!
+  update: ItemUpdateWithoutBookingDataInput!
+  create: ItemCreateWithoutBookingInput!
+}
+
+input ItemWhereInput {
+  """Logical AND on all given filters."""
+  AND: [ItemWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [ItemWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [ItemWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  amount: Int
+
+  """All values that are not equal to given value."""
+  amount_not: Int
+
+  """All values that are contained in given list."""
+  amount_in: [Int!]
+
+  """All values that are not contained in given list."""
+  amount_not_in: [Int!]
+
+  """All values less than the given value."""
+  amount_lt: Int
+
+  """All values less than or equal the given value."""
+  amount_lte: Int
+
+  """All values greater than the given value."""
+  amount_gt: Int
+
+  """All values greater than or equal the given value."""
+  amount_gte: Int
+  product: ProductWhereInput
+  booking: BookingWhereInput
+}
+
+input ItemWhereUniqueInput {
+  id: ID
+}
+
+"""
+The `Long` scalar type represents non-fractional signed whole numeric values.
+Long can represent values between -(2^63) and 2^63 - 1.
+"""
+scalar Long
+
+type Mutation {
+  createUser(data: UserCreateInput!): User!
+  createBooking(data: BookingCreateInput!): Booking!
+  createItem(data: ItemCreateInput!): Item!
+  createProduct(data: ProductCreateInput!): Product!
+  createFile(data: FileCreateInput!): File!
+  updateUser(data: UserUpdateInput!, where: UserWhereUniqueInput!): User
+  updateBooking(data: BookingUpdateInput!, where: BookingWhereUniqueInput!): Booking
+  updateItem(data: ItemUpdateInput!, where: ItemWhereUniqueInput!): Item
+  updateProduct(data: ProductUpdateInput!, where: ProductWhereUniqueInput!): Product
+  updateFile(data: FileUpdateInput!, where: FileWhereUniqueInput!): File
+  deleteUser(where: UserWhereUniqueInput!): User
+  deleteBooking(where: BookingWhereUniqueInput!): Booking
+  deleteItem(where: ItemWhereUniqueInput!): Item
+  deleteProduct(where: ProductWhereUniqueInput!): Product
+  deleteFile(where: FileWhereUniqueInput!): File
+  upsertUser(where: UserWhereUniqueInput!, create: UserCreateInput!, update: UserUpdateInput!): User!
+  upsertBooking(where: BookingWhereUniqueInput!, create: BookingCreateInput!, update: BookingUpdateInput!): Booking!
+  upsertItem(where: ItemWhereUniqueInput!, create: ItemCreateInput!, update: ItemUpdateInput!): Item!
+  upsertProduct(where: ProductWhereUniqueInput!, create: ProductCreateInput!, update: ProductUpdateInput!): Product!
+  upsertFile(where: FileWhereUniqueInput!, create: FileCreateInput!, update: FileUpdateInput!): File!
+  updateManyUsers(data: UserUpdateInput!, where: UserWhereInput): BatchPayload!
+  updateManyBookings(data: BookingUpdateInput!, where: BookingWhereInput): BatchPayload!
+  updateManyItems(data: ItemUpdateInput!, where: ItemWhereInput): BatchPayload!
+  updateManyProducts(data: ProductUpdateInput!, where: ProductWhereInput): BatchPayload!
+  updateManyFiles(data: FileUpdateInput!, where: FileWhereInput): BatchPayload!
+  deleteManyUsers(where: UserWhereInput): BatchPayload!
+  deleteManyBookings(where: BookingWhereInput): BatchPayload!
+  deleteManyItems(where: ItemWhereInput): BatchPayload!
+  deleteManyProducts(where: ProductWhereInput): BatchPayload!
+  deleteManyFiles(where: FileWhereInput): BatchPayload!
+}
+
+enum MutationType {
+  CREATED
+  UPDATED
+  DELETED
+}
+
+"""An object with an ID"""
+interface Node {
+  """The id of the object."""
+  id: ID!
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+type Product implements Node {
+  id: ID!
+  name: String!
+  stock: Int!
+  item(where: ItemWhereInput): Item
+}
+
+"""A connection to a list of items."""
+type ProductConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [ProductEdge]!
+  aggregate: AggregateProduct!
+}
+
+input ProductCreateInput {
+  name: String!
+  stock: Int!
+  item: ItemCreateOneWithoutProductInput
+}
+
+input ProductCreateOneWithoutItemInput {
+  create: ProductCreateWithoutItemInput
+  connect: ProductWhereUniqueInput
+}
+
+input ProductCreateWithoutItemInput {
+  name: String!
+  stock: Int!
+}
+
+"""An edge in a connection."""
+type ProductEdge {
+  """The item at the end of the edge."""
+  node: Product!
+
+  """A cursor for use in pagination."""
+  cursor: String!
+}
+
+enum ProductOrderByInput {
+  id_ASC
+  id_DESC
+  name_ASC
+  name_DESC
+  stock_ASC
+  stock_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdAt_ASC
+  createdAt_DESC
+}
+
+type ProductPreviousValues {
+  id: ID!
+  name: String!
+  stock: Int!
+}
+
+type ProductSubscriptionPayload {
+  mutation: MutationType!
+  node: Product
+  updatedFields: [String!]
+  previousValues: ProductPreviousValues
+}
+
+input ProductSubscriptionWhereInput {
+  """Logical AND on all given filters."""
+  AND: [ProductSubscriptionWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [ProductSubscriptionWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [ProductSubscriptionWhereInput!]
+
+  """
+  The subscription event gets dispatched when it's listed in mutation_in
+  """
+  mutation_in: [MutationType!]
+
+  """
+  The subscription event gets only dispatched when one of the updated fields names is included in this list
+  """
+  updatedFields_contains: String
+
+  """
+  The subscription event gets only dispatched when all of the field names included in this list have been updated
+  """
+  updatedFields_contains_every: [String!]
+
+  """
+  The subscription event gets only dispatched when some of the field names included in this list have been updated
+  """
+  updatedFields_contains_some: [String!]
+  node: ProductWhereInput
+}
+
+input ProductUpdateInput {
+  name: String
+  stock: Int
+  item: ItemUpdateOneWithoutProductInput
+}
+
+input ProductUpdateOneWithoutItemInput {
+  create: ProductCreateWithoutItemInput
+  connect: ProductWhereUniqueInput
+  delete: Boolean
+  update: ProductUpdateWithoutItemDataInput
+  upsert: ProductUpsertWithoutItemInput
+}
+
+input ProductUpdateWithoutItemDataInput {
+  name: String
+  stock: Int
+}
+
+input ProductUpsertWithoutItemInput {
+  update: ProductUpdateWithoutItemDataInput!
+  create: ProductCreateWithoutItemInput!
+}
+
+input ProductWhereInput {
+  """Logical AND on all given filters."""
+  AND: [ProductWhereInput!]
+
+  """Logical OR on all given filters."""
+  OR: [ProductWhereInput!]
+
+  """Logical NOT on all given filters combined by AND."""
+  NOT: [ProductWhereInput!]
+  id: ID
+
+  """All values that are not equal to given value."""
+  id_not: ID
+
+  """All values that are contained in given list."""
+  id_in: [ID!]
+
+  """All values that are not contained in given list."""
+  id_not_in: [ID!]
+
+  """All values less than the given value."""
+  id_lt: ID
+
+  """All values less than or equal the given value."""
+  id_lte: ID
+
+  """All values greater than the given value."""
+  id_gt: ID
+
+  """All values greater than or equal the given value."""
+  id_gte: ID
+
+  """All values containing the given string."""
+  id_contains: ID
+
+  """All values not containing the given string."""
+  id_not_contains: ID
+
+  """All values starting with the given string."""
+  id_starts_with: ID
+
+  """All values not starting with the given string."""
+  id_not_starts_with: ID
+
+  """All values ending with the given string."""
+  id_ends_with: ID
+
+  """All values not ending with the given string."""
+  id_not_ends_with: ID
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
+  stock: Int
+
+  """All values that are not equal to given value."""
+  stock_not: Int
+
+  """All values that are contained in given list."""
+  stock_in: [Int!]
+
+  """All values that are not contained in given list."""
+  stock_not_in: [Int!]
+
+  """All values less than the given value."""
+  stock_lt: Int
+
+  """All values less than or equal the given value."""
+  stock_lte: Int
+
+  """All values greater than the given value."""
+  stock_gt: Int
+
+  """All values greater than or equal the given value."""
+  stock_gte: Int
+  item: ItemWhereInput
+}
+
+input ProductWhereUniqueInput {
   id: ID
 }
 
 type Query {
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post]!
   users(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [User]!
-  post(where: PostWhereUniqueInput!): Post
+  bookings(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking]!
+  items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item]!
+  products(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Product]!
+  files(where: FileWhereInput, orderBy: FileOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [File]!
   user(where: UserWhereUniqueInput!): User
-  postsConnection(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): PostConnection!
+  booking(where: BookingWhereUniqueInput!): Booking
+  item(where: ItemWhereUniqueInput!): Item
+  product(where: ProductWhereUniqueInput!): Product
+  file(where: FileWhereUniqueInput!): File
   usersConnection(where: UserWhereInput, orderBy: UserOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): UserConnection!
+  bookingsConnection(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): BookingConnection!
+  itemsConnection(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ItemConnection!
+  productsConnection(where: ProductWhereInput, orderBy: ProductOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): ProductConnection!
+  filesConnection(where: FileWhereInput, orderBy: FileOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): FileConnection!
 
   """Fetches an object given its ID"""
   node(
@@ -406,17 +1281,27 @@ type Query {
   ): Node
 }
 
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
 type Subscription {
-  post(where: PostSubscriptionWhereInput): PostSubscriptionPayload
   user(where: UserSubscriptionWhereInput): UserSubscriptionPayload
+  booking(where: BookingSubscriptionWhereInput): BookingSubscriptionPayload
+  item(where: ItemSubscriptionWhereInput): ItemSubscriptionPayload
+  product(where: ProductSubscriptionWhereInput): ProductSubscriptionPayload
+  file(where: FileSubscriptionWhereInput): FileSubscriptionPayload
 }
 
 type User implements Node {
   id: ID!
+  name: String!
   email: String!
   password: String!
-  name: String!
-  posts(where: PostWhereInput, orderBy: PostOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Post!]
+  photo(where: FileWhereInput): File
+  role: Role!
+  booking(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking!]
 }
 
 """A connection to a list of items."""
@@ -430,21 +1315,38 @@ type UserConnection {
 }
 
 input UserCreateInput {
+  name: String!
   email: String!
   password: String!
-  name: String!
-  posts: PostCreateManyWithoutAuthorInput
+  role: Role
+  photo: FileCreateOneWithoutUserPhotoInput
+  booking: BookingCreateManyWithoutUserBookingInput
 }
 
-input UserCreateOneWithoutPostsInput {
-  create: UserCreateWithoutPostsInput
+input UserCreateOneWithoutBookingInput {
+  create: UserCreateWithoutBookingInput
   connect: UserWhereUniqueInput
 }
 
-input UserCreateWithoutPostsInput {
+input UserCreateOneWithoutPhotoInput {
+  create: UserCreateWithoutPhotoInput
+  connect: UserWhereUniqueInput
+}
+
+input UserCreateWithoutBookingInput {
+  name: String!
   email: String!
   password: String!
+  role: Role
+  photo: FileCreateOneWithoutUserPhotoInput
+}
+
+input UserCreateWithoutPhotoInput {
   name: String!
+  email: String!
+  password: String!
+  role: Role
+  booking: BookingCreateManyWithoutUserBookingInput
 }
 
 """An edge in a connection."""
@@ -459,12 +1361,14 @@ type UserEdge {
 enum UserOrderByInput {
   id_ASC
   id_DESC
+  name_ASC
+  name_DESC
   email_ASC
   email_DESC
   password_ASC
   password_DESC
-  name_ASC
-  name_DESC
+  role_ASC
+  role_DESC
   updatedAt_ASC
   updatedAt_DESC
   createdAt_ASC
@@ -473,9 +1377,10 @@ enum UserOrderByInput {
 
 type UserPreviousValues {
   id: ID!
+  name: String!
   email: String!
   password: String!
-  name: String!
+  role: Role!
 }
 
 type UserSubscriptionPayload {
@@ -518,29 +1423,56 @@ input UserSubscriptionWhereInput {
 }
 
 input UserUpdateInput {
+  name: String
   email: String
   password: String
-  name: String
-  posts: PostUpdateManyWithoutAuthorInput
+  role: Role
+  photo: FileUpdateOneWithoutUserPhotoInput
+  booking: BookingUpdateManyWithoutUserBookingInput
 }
 
-input UserUpdateOneWithoutPostsInput {
-  create: UserCreateWithoutPostsInput
+input UserUpdateOneWithoutBookingInput {
+  create: UserCreateWithoutBookingInput
   connect: UserWhereUniqueInput
+  disconnect: Boolean
   delete: Boolean
-  update: UserUpdateWithoutPostsDataInput
-  upsert: UserUpsertWithoutPostsInput
+  update: UserUpdateWithoutBookingDataInput
+  upsert: UserUpsertWithoutBookingInput
 }
 
-input UserUpdateWithoutPostsDataInput {
+input UserUpdateOneWithoutPhotoInput {
+  create: UserCreateWithoutPhotoInput
+  connect: UserWhereUniqueInput
+  disconnect: Boolean
+  delete: Boolean
+  update: UserUpdateWithoutPhotoDataInput
+  upsert: UserUpsertWithoutPhotoInput
+}
+
+input UserUpdateWithoutBookingDataInput {
+  name: String
   email: String
   password: String
-  name: String
+  role: Role
+  photo: FileUpdateOneWithoutUserPhotoInput
 }
 
-input UserUpsertWithoutPostsInput {
-  update: UserUpdateWithoutPostsDataInput!
-  create: UserCreateWithoutPostsInput!
+input UserUpdateWithoutPhotoDataInput {
+  name: String
+  email: String
+  password: String
+  role: Role
+  booking: BookingUpdateManyWithoutUserBookingInput
+}
+
+input UserUpsertWithoutBookingInput {
+  update: UserUpdateWithoutBookingDataInput!
+  create: UserCreateWithoutBookingInput!
+}
+
+input UserUpsertWithoutPhotoInput {
+  update: UserUpdateWithoutPhotoDataInput!
+  create: UserCreateWithoutPhotoInput!
 }
 
 input UserWhereInput {
@@ -592,6 +1524,46 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   id_not_ends_with: ID
+  name: String
+
+  """All values that are not equal to given value."""
+  name_not: String
+
+  """All values that are contained in given list."""
+  name_in: [String!]
+
+  """All values that are not contained in given list."""
+  name_not_in: [String!]
+
+  """All values less than the given value."""
+  name_lt: String
+
+  """All values less than or equal the given value."""
+  name_lte: String
+
+  """All values greater than the given value."""
+  name_gt: String
+
+  """All values greater than or equal the given value."""
+  name_gte: String
+
+  """All values containing the given string."""
+  name_contains: String
+
+  """All values not containing the given string."""
+  name_not_contains: String
+
+  """All values starting with the given string."""
+  name_starts_with: String
+
+  """All values not starting with the given string."""
+  name_not_starts_with: String
+
+  """All values ending with the given string."""
+  name_ends_with: String
+
+  """All values not ending with the given string."""
+  name_not_ends_with: String
   email: String
 
   """All values that are not equal to given value."""
@@ -672,49 +1644,20 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   password_not_ends_with: String
-  name: String
+  role: Role
 
   """All values that are not equal to given value."""
-  name_not: String
+  role_not: Role
 
   """All values that are contained in given list."""
-  name_in: [String!]
+  role_in: [Role!]
 
   """All values that are not contained in given list."""
-  name_not_in: [String!]
-
-  """All values less than the given value."""
-  name_lt: String
-
-  """All values less than or equal the given value."""
-  name_lte: String
-
-  """All values greater than the given value."""
-  name_gt: String
-
-  """All values greater than or equal the given value."""
-  name_gte: String
-
-  """All values containing the given string."""
-  name_contains: String
-
-  """All values not containing the given string."""
-  name_not_contains: String
-
-  """All values starting with the given string."""
-  name_starts_with: String
-
-  """All values not starting with the given string."""
-  name_not_starts_with: String
-
-  """All values ending with the given string."""
-  name_ends_with: String
-
-  """All values not ending with the given string."""
-  name_not_ends_with: String
-  posts_every: PostWhereInput
-  posts_some: PostWhereInput
-  posts_none: PostWhereInput
+  role_not_in: [Role!]
+  photo: FileWhereInput
+  booking_every: BookingWhereInput
+  booking_some: BookingWhereInput
+  booking_none: BookingWhereInput
 }
 
 input UserWhereUniqueInput {

@@ -1,17 +1,60 @@
-type Post {
+type User {
+  id: ID! @unique
+  name: String!
+  email: String! @unique
+  password: String! 
+  photo: File  @relation(name: "FileInPhoto")
+  role: Role! @default(value: "CUSTOMER")
+  booking: [Booking!]! @relation(name: "BookingInUser")
+}
+
+type Booking {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
-  isPublished: Boolean! @default(value: "false")
-  title: String!
-  text: String!
-  author: User!
+  items: [Item!]! @relation(name: "BookingInItem") 
+  status: BookingStatus! @default(value: "PENDING")
+  userBooking: User @relation(name: "BookingInUser")
 }
 
-type User {
+type Item {
   id: ID! @unique
-  email: String! @unique
+  amount: Int!
+  product: Product! @relation(name: "ProductInItem")
+  booking: Booking! @relation(name: "BookingInItem")
+}
+
+type Product {
+  id: ID! @unique
+  name: String!
+  stock: Int!
+  item: Item @relation(name: "ProductInItem")
+}
+
+type File {
+  id: ID! @unique
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  filename: String
+  mimetype: String!
+  encoding: String!
+  url: String! @unique
+  userPhoto: User @relation(name: "FileInPhoto")
+}
+
+input InputSingUp {
+  email: String! 
   password: String!
   name: String!
-  posts: [Post!]!
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum BookingStatus {
+  PENDING,
+  PROCCESS,
+  PAID
 }
