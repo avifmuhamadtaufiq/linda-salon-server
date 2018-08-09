@@ -13,7 +13,15 @@ export function getUserId(ctx: Context) {
     const { userId } = jwt.verify(token, process.env.APP_SECRET) as { userId: string }
     return userId
   }
+  throw new AuthError()
+}
 
+export async function getUser(ctx: Context) {
+  const userId = getUserId(ctx)
+  const user = await ctx.db.query.user({
+    where: { id: userId }
+  })
+  if (user) return user
   throw new AuthError()
 }
 

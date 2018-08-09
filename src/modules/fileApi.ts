@@ -29,18 +29,17 @@ export const processUpload = async( upload, ctx ) => {
   //     Bucket: 'com.prisma.s3',
   //   }).promise()
   
-
   const response = await s3.upload({
     Key: key,
     ACL: 'public-read',
     Body: stream,
     Bucket: 'com.prisma.s3',
   }, {
-    partSize: 10 * 1024 * 1024, queueSize: 1
+    // partSize: 10 * 1024 * 1024, queueSize: 1
   },
   function(err, data) {
     if (err) {
-      throw new Error('errrrrrrrrorrr')
+      throw new Error('error during upload file')
     }
   }).promise()
 

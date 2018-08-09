@@ -10,6 +10,7 @@ import * as cors from 'cors'
 const server = new GraphQLServer({
   typeDefs: ultimateSchemaString,
   resolvers,
+  directiveResolvers,
   context: req => ({
     ...req,
     db: new Prisma({

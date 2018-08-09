@@ -18,6 +18,12 @@ services:
             user: root
             password: prisma
             migrations: true
+  fakes3:
+    image: olalond3/fakes3
+    ports:
+      - "4567:4567"
+    volumes:
+      - ./data:/fakes3/data
   mysql:
     image: mysql:5.7
     restart: always

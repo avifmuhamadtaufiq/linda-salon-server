@@ -1,33 +1,22 @@
 # This is where we define any custom resolvers, and where we add custom directives to any generated Prisma resolvers
 scalar Upload
-scalar Naon
 
 type AuthPayload {
   token: String! 
-  user: User
+  user: User!
 }
 
 type Query {
-  me: User 
+  me: User! 
   file(id: ID!): File
-  files: [File!]! @isAuthenticated
-}
-
-input InputSingUp {
-  email: String! 
-  password: String! 
-  name: String! @constraint(minLength: 5) 
+  files: [File] 
 }
 
 type Mutation {
-  signup(input: InputSingUp): AuthPayload!
+  signup(email: String!, password: String, name: String!): AuthPayload!
   login(email: String!, password: String!): AuthPayload! 
   uploadFile (file: Upload): File 
   uploadFiles (files: [Upload!]!): [File!]!
   renameFile(id: ID!, name: String!): File
   deleteFile(id: ID!): File
 }
-
-
-
-

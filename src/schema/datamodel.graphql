@@ -2,18 +2,19 @@
 # Essentially, all of these types become database tables
 
 type User {
-  id: ID!
+  id: ID! 
   email: String!
-  name: String
+  name: String!
   photo: File
   role: Role! @default(value: "CUSTOMER")
 }
 
 type File {
   id: ID! 
-  filename: String  
+  filename: String @hasRole(role: "ADMIN")
   mimetype: String!
-  url: String!
+  url: String! 
+  userPhoto: User
 }
 
 enum Role {

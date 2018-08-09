@@ -4,14 +4,14 @@ import { Context } from '../../services/utils'
 
 export const auth = {
   async signup(parent, args, ctx: Context, info) {
-    const password = await bcrypt.hash(args.input.password, 10)
+    const password = await bcrypt.hash(args.password, 10)
     const user = await ctx.db.mutation.createUser({
-      data: { ...args.input, password },
+      data: { ...args, password },
     })
 
     return {
       token: jwt.sign({ userId: user.id }, process.env.APP_SECRET),
-      user: null,
+      user,
     }
   },
 

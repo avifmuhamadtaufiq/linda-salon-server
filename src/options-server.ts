@@ -3,11 +3,11 @@ import costAnalysis from 'graphql-cost-analysis'
 import * as depthLimit from 'graphql-depth-limit'
 
 export default {
-  validationRules: (req) => [
+  validationRules: req => [
     costAnalysis({
-      variables: req.query.varibles,
-      maximumCost: 50,
+      variables: req.body.variables,
+      maximumCost: 1000,
     }),
     depthLimit(10),
   ]
-}
+} as Options

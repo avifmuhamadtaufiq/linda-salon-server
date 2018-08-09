@@ -6,7 +6,7 @@
     "dev:local": "npm-run-all --parallel start:local playground",
     "debug": "dotenv -- nodemon -e ts,graphql -x ts-node --inspect src/index.ts",
     "playground": "graphql playground",
-    "build": "rimraf dist && tsc"
+    "build": "rimraf dist && tsc --build"
   },
   "dependencies": {
     "bcryptjs": "2.4.3",
@@ -31,7 +31,7 @@
     "prisma": "1.13.6",
     "rimraf": "2.6.2",
     "ts-node": "6.2.0",
-    "typescript": "2.9.2",
+    "typescript": "3.0.1",
     "uuid": "3.3.2"
   }
 }
