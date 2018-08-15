@@ -12,7 +12,7 @@ export const s3 = new S3({
   endpoint: 'http://localhost:4567',
 })
 
-export const processUpload = async( upload, ctx ) => {
+export const processUpload = async(upload, ctx) => {
   if (!upload) {
     return console.log('ERROR: No file received or you are not login.')
   }
@@ -29,6 +29,7 @@ export const processUpload = async( upload, ctx ) => {
   //     Bucket: 'com.prisma.s3',
   //   }).promise()
   
+
   const response = await s3.upload({
     Key: key,
     ACL: 'public-read',
@@ -39,7 +40,7 @@ export const processUpload = async( upload, ctx ) => {
   },
   function(err, data) {
     if (err) {
-      throw new Error('error during upload file')
+      throw new Error('errrrrrrrrorrr')
     }
   }).promise()
 

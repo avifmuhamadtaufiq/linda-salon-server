@@ -13,6 +13,7 @@ export function getUserId(ctx: Context) {
     const { userId } = jwt.verify(token, process.env.APP_SECRET) as { userId: string }
     return userId
   }
+
   throw new AuthError()
 }
 

@@ -3,6 +3,7 @@ type User {
   name: String!
   email: String! @unique
   password: String! 
+  createdAt: DateTime!
   photo: File  @relation(name: "FileInPhoto")
   role: Role! @default(value: "CUSTOMER")
   booking: [Booking!]! @relation(name: "BookingInUser")
@@ -12,6 +13,9 @@ type Booking {
   id: ID! @unique
   createdAt: DateTime!
   updatedAt: DateTime!
+  forDate: DateTime!
+  toData: DateTime
+  pesanan: [DateTime!]!
   items: [Item!]! @relation(name: "BookingInItem") 
   status: BookingStatus! @default(value: "PENDING")
   userBooking: User @relation(name: "BookingInUser")
@@ -28,7 +32,7 @@ type Product {
   id: ID! @unique
   name: String!
   stock: Int!
-  item: Item @relation(name: "ProductInItem")
+  item: [Item!]! @relation(name: "ProductInItem")
 }
 
 type File {

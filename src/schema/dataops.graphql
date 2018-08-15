@@ -1,5 +1,6 @@
 # This is where we define any custom resolvers, and where we add custom directives to any generated Prisma resolvers
 scalar Upload
+scalar DateTime
 
 type AuthPayload {
   token: String! 
@@ -10,10 +11,12 @@ type Query {
   me: User! 
   file(id: ID!): File
   files: [File] 
+  tester: [Product!]!
+  productByDate: [Product!]!
 }
 
 type Mutation {
-  signup(email: String!, password: String, name: String!): AuthPayload!
+  signup(email: String!, password: String!, name: String!): AuthPayload!
   login(email: String!, password: String!): AuthPayload! 
   uploadFile (file: Upload): File 
   uploadFiles (files: [Upload!]!): [File!]!

@@ -3,6 +3,10 @@ import costAnalysis from 'graphql-cost-analysis'
 import * as depthLimit from 'graphql-depth-limit'
 
 export default {
+  cors: {
+    "origin": "*",
+    "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
+  },
   validationRules: req => [
     costAnalysis({
       variables: req.body.variables,

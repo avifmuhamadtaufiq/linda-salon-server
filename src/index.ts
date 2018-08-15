@@ -1,16 +1,16 @@
 import { GraphQLServer } from 'graphql-yoga'
 import { Prisma } from './generated/prisma'
 import resolvers from './resolvers'
-import { directiveResolvers } from './directive-resolvers'
 import ultimateSchemaString from './schema'
-// import schemaDirectives from './schema-directive'
 import options from './options-server'
-import * as cors from 'cors'
+import permission from './middleware/permissions';
 
 const server = new GraphQLServer({
   typeDefs: ultimateSchemaString,
   resolvers,
-  directiveResolvers,
+  middlewares: [
+    permission
+  ],
   context: req => ({
     ...req,
     db: new Prisma({
@@ -20,7 +20,5 @@ const server = new GraphQLServer({
     }),
   }),
 })
-
-server.express.use('/*', cors()) // allow cors
 
 server.start(options, () => console.log(`Server is running on http://localhost:4000`))

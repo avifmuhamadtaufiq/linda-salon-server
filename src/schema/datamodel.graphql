@@ -5,16 +5,53 @@ type User {
   id: ID! 
   email: String!
   name: String!
-  photo: File
+  # photo: File
   role: Role! @default(value: "CUSTOMER")
 }
 
+type Tester {
+  date: DateTime!
+}
+
+
 type File {
   id: ID! 
-  filename: String @hasRole(role: "ADMIN")
+  filename: String!
   mimetype: String!
-  url: String! 
+  url: String!
   userPhoto: User
+}
+
+type Booking {
+  id: ID! 
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  forDate: DateTime!
+  toData: DateTime
+  pesanan: [DateTime!]!
+  items: [Item!]! 
+  status: BookingStatus! 
+  userBooking: User 
+}
+
+type Item {
+  id: ID! 
+  amount: Int!
+  product: Product! 
+  booking: Booking!
+}
+
+type Product {
+  id: ID! 
+  name: String!
+  stock: Int!
+  item: Item 
+}
+
+enum BookingStatus {
+  PENDING,
+  PROCCESS,
+  PAID
 }
 
 enum Role {

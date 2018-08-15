@@ -122,6 +122,9 @@ type Booking implements Node {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  forDate: DateTime!
+  toData: DateTime
+  pesanan: [DateTime!]!
   items(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item!]
   status: BookingStatus!
   userBooking(where: UserWhereInput): User
@@ -138,7 +141,10 @@ type BookingConnection {
 }
 
 input BookingCreateInput {
+  forDate: DateTime!
+  toData: DateTime
   status: BookingStatus
+  pesanan: BookingCreatepesananInput
   items: ItemCreateManyWithoutBookingInput
   userBooking: UserCreateOneWithoutBookingInput
 }
@@ -153,13 +159,23 @@ input BookingCreateOneWithoutItemsInput {
   connect: BookingWhereUniqueInput
 }
 
+input BookingCreatepesananInput {
+  set: [DateTime!]
+}
+
 input BookingCreateWithoutItemsInput {
+  forDate: DateTime!
+  toData: DateTime
   status: BookingStatus
+  pesanan: BookingCreatepesananInput
   userBooking: UserCreateOneWithoutBookingInput
 }
 
 input BookingCreateWithoutUserBookingInput {
+  forDate: DateTime!
+  toData: DateTime
   status: BookingStatus
+  pesanan: BookingCreatepesananInput
   items: ItemCreateManyWithoutBookingInput
 }
 
@@ -179,6 +195,10 @@ enum BookingOrderByInput {
   createdAt_DESC
   updatedAt_ASC
   updatedAt_DESC
+  forDate_ASC
+  forDate_DESC
+  toData_ASC
+  toData_DESC
   status_ASC
   status_DESC
 }
@@ -187,6 +207,9 @@ type BookingPreviousValues {
   id: ID!
   createdAt: DateTime!
   updatedAt: DateTime!
+  forDate: DateTime!
+  toData: DateTime
+  pesanan: [DateTime!]!
   status: BookingStatus!
 }
 
@@ -236,7 +259,10 @@ input BookingSubscriptionWhereInput {
 }
 
 input BookingUpdateInput {
+  forDate: DateTime
+  toData: DateTime
   status: BookingStatus
+  pesanan: BookingUpdatepesananInput
   items: ItemUpdateManyWithoutBookingInput
   userBooking: UserUpdateOneWithoutBookingInput
 }
@@ -258,13 +284,23 @@ input BookingUpdateOneWithoutItemsInput {
   upsert: BookingUpsertWithoutItemsInput
 }
 
+input BookingUpdatepesananInput {
+  set: [DateTime!]
+}
+
 input BookingUpdateWithoutItemsDataInput {
+  forDate: DateTime
+  toData: DateTime
   status: BookingStatus
+  pesanan: BookingUpdatepesananInput
   userBooking: UserUpdateOneWithoutBookingInput
 }
 
 input BookingUpdateWithoutUserBookingDataInput {
+  forDate: DateTime
+  toData: DateTime
   status: BookingStatus
+  pesanan: BookingUpdatepesananInput
   items: ItemUpdateManyWithoutBookingInput
 }
 
@@ -377,6 +413,50 @@ input BookingWhereInput {
 
   """All values greater than or equal the given value."""
   updatedAt_gte: DateTime
+  forDate: DateTime
+
+  """All values that are not equal to given value."""
+  forDate_not: DateTime
+
+  """All values that are contained in given list."""
+  forDate_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  forDate_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  forDate_lt: DateTime
+
+  """All values less than or equal the given value."""
+  forDate_lte: DateTime
+
+  """All values greater than the given value."""
+  forDate_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  forDate_gte: DateTime
+  toData: DateTime
+
+  """All values that are not equal to given value."""
+  toData_not: DateTime
+
+  """All values that are contained in given list."""
+  toData_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  toData_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  toData_lt: DateTime
+
+  """All values less than or equal the given value."""
+  toData_lte: DateTime
+
+  """All values greater than the given value."""
+  toData_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  toData_gte: DateTime
   status: BookingStatus
 
   """All values that are not equal to given value."""
@@ -833,9 +913,9 @@ input ItemCreateManyWithoutBookingInput {
   connect: [ItemWhereUniqueInput!]
 }
 
-input ItemCreateOneWithoutProductInput {
-  create: ItemCreateWithoutProductInput
-  connect: ItemWhereUniqueInput
+input ItemCreateManyWithoutProductInput {
+  create: [ItemCreateWithoutProductInput!]
+  connect: [ItemWhereUniqueInput!]
 }
 
 input ItemCreateWithoutBookingInput {
@@ -927,13 +1007,13 @@ input ItemUpdateManyWithoutBookingInput {
   upsert: [ItemUpsertWithWhereUniqueWithoutBookingInput!]
 }
 
-input ItemUpdateOneWithoutProductInput {
-  create: ItemCreateWithoutProductInput
-  connect: ItemWhereUniqueInput
-  disconnect: Boolean
-  delete: Boolean
-  update: ItemUpdateWithoutProductDataInput
-  upsert: ItemUpsertWithoutProductInput
+input ItemUpdateManyWithoutProductInput {
+  create: [ItemCreateWithoutProductInput!]
+  connect: [ItemWhereUniqueInput!]
+  disconnect: [ItemWhereUniqueInput!]
+  delete: [ItemWhereUniqueInput!]
+  update: [ItemUpdateWithWhereUniqueWithoutProductInput!]
+  upsert: [ItemUpsertWithWhereUniqueWithoutProductInput!]
 }
 
 input ItemUpdateWithoutBookingDataInput {
@@ -951,15 +1031,21 @@ input ItemUpdateWithWhereUniqueWithoutBookingInput {
   data: ItemUpdateWithoutBookingDataInput!
 }
 
-input ItemUpsertWithoutProductInput {
-  update: ItemUpdateWithoutProductDataInput!
-  create: ItemCreateWithoutProductInput!
+input ItemUpdateWithWhereUniqueWithoutProductInput {
+  where: ItemWhereUniqueInput!
+  data: ItemUpdateWithoutProductDataInput!
 }
 
 input ItemUpsertWithWhereUniqueWithoutBookingInput {
   where: ItemWhereUniqueInput!
   update: ItemUpdateWithoutBookingDataInput!
   create: ItemCreateWithoutBookingInput!
+}
+
+input ItemUpsertWithWhereUniqueWithoutProductInput {
+  where: ItemWhereUniqueInput!
+  update: ItemUpdateWithoutProductDataInput!
+  create: ItemCreateWithoutProductInput!
 }
 
 input ItemWhereInput {
@@ -1111,7 +1197,7 @@ type Product implements Node {
   id: ID!
   name: String!
   stock: Int!
-  item(where: ItemWhereInput): Item
+  item(where: ItemWhereInput, orderBy: ItemOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Item!]
 }
 
 """A connection to a list of items."""
@@ -1127,7 +1213,7 @@ type ProductConnection {
 input ProductCreateInput {
   name: String!
   stock: Int!
-  item: ItemCreateOneWithoutProductInput
+  item: ItemCreateManyWithoutProductInput
 }
 
 input ProductCreateOneWithoutItemInput {
@@ -1210,7 +1296,7 @@ input ProductSubscriptionWhereInput {
 input ProductUpdateInput {
   name: String
   stock: Int
-  item: ItemUpdateOneWithoutProductInput
+  item: ItemUpdateManyWithoutProductInput
 }
 
 input ProductUpdateOneWithoutItemInput {
@@ -1342,7 +1428,9 @@ input ProductWhereInput {
 
   """All values greater than or equal the given value."""
   stock_gte: Int
-  item: ItemWhereInput
+  item_every: ItemWhereInput
+  item_some: ItemWhereInput
+  item_none: ItemWhereInput
 }
 
 input ProductWhereUniqueInput {
@@ -1391,6 +1479,7 @@ type User implements Node {
   name: String!
   email: String!
   password: String!
+  createdAt: DateTime!
   photo(where: FileWhereInput): File
   role: Role!
   booking(where: BookingWhereInput, orderBy: BookingOrderByInput, skip: Int, after: String, before: String, first: Int, last: Int): [Booking!]
@@ -1459,12 +1548,12 @@ enum UserOrderByInput {
   email_DESC
   password_ASC
   password_DESC
+  createdAt_ASC
+  createdAt_DESC
   role_ASC
   role_DESC
   updatedAt_ASC
   updatedAt_DESC
-  createdAt_ASC
-  createdAt_DESC
 }
 
 type UserPreviousValues {
@@ -1472,6 +1561,7 @@ type UserPreviousValues {
   name: String!
   email: String!
   password: String!
+  createdAt: DateTime!
   role: Role!
 }
 
@@ -1736,6 +1826,28 @@ input UserWhereInput {
 
   """All values not ending with the given string."""
   password_not_ends_with: String
+  createdAt: DateTime
+
+  """All values that are not equal to given value."""
+  createdAt_not: DateTime
+
+  """All values that are contained in given list."""
+  createdAt_in: [DateTime!]
+
+  """All values that are not contained in given list."""
+  createdAt_not_in: [DateTime!]
+
+  """All values less than the given value."""
+  createdAt_lt: DateTime
+
+  """All values less than or equal the given value."""
+  createdAt_lte: DateTime
+
+  """All values greater than the given value."""
+  createdAt_gt: DateTime
+
+  """All values greater than or equal the given value."""
+  createdAt_gte: DateTime
   role: Role
 
   """All values that are not equal to given value."""
@@ -1772,12 +1884,12 @@ export type UserOrderByInput =   'id_ASC' |
   'email_DESC' |
   'password_ASC' |
   'password_DESC' |
+  'createdAt_ASC' |
+  'createdAt_DESC' |
   'role_ASC' |
   'role_DESC' |
   'updatedAt_ASC' |
-  'updatedAt_DESC' |
-  'createdAt_ASC' |
-  'createdAt_DESC'
+  'updatedAt_DESC'
 
 export type BookingOrderByInput =   'id_ASC' |
   'id_DESC' |
@@ -1785,6 +1897,10 @@ export type BookingOrderByInput =   'id_ASC' |
   'createdAt_DESC' |
   'updatedAt_ASC' |
   'updatedAt_DESC' |
+  'forDate_ASC' |
+  'forDate_DESC' |
+  'toData_ASC' |
+  'toData_DESC' |
   'status_ASC' |
   'status_DESC'
 
@@ -1812,6 +1928,9 @@ export type ProductOrderByInput =   'id_ASC' |
   'createdAt_ASC' |
   'createdAt_DESC'
 
+export type Role =   'CUSTOMER' |
+  'ADMIN'
+
 export type FileOrderByInput =   'id_ASC' |
   'id_DESC' |
   'createdAt_ASC' |
@@ -1826,9 +1945,6 @@ export type FileOrderByInput =   'id_ASC' |
   'encoding_DESC' |
   'url_ASC' |
   'url_DESC'
-
-export type Role =   'CUSTOMER' |
-  'ADMIN'
 
 export type MutationType =   'CREATED' |
   'UPDATED' |
@@ -1899,6 +2015,14 @@ export interface UserWhereInput {
   password_not_starts_with?: String
   password_ends_with?: String
   password_not_ends_with?: String
+  createdAt?: DateTime
+  createdAt_not?: DateTime
+  createdAt_in?: DateTime[] | DateTime
+  createdAt_not_in?: DateTime[] | DateTime
+  createdAt_lt?: DateTime
+  createdAt_lte?: DateTime
+  createdAt_gt?: DateTime
+  createdAt_gte?: DateTime
   role?: Role
   role_not?: Role
   role_in?: Role[] | Role
@@ -1957,17 +2081,9 @@ export interface ProductWhereInput {
   stock_lte?: Int
   stock_gt?: Int
   stock_gte?: Int
-  item?: ItemWhereInput
-}
-
-export interface FileCreateOneWithoutUserPhotoInput {
-  create?: FileCreateWithoutUserPhotoInput
-  connect?: FileWhereUniqueInput
-}
-
-export interface ProductUpdateWithoutItemDataInput {
-  name?: String
-  stock?: Int
+  item_every?: ItemWhereInput
+  item_some?: ItemWhereInput
+  item_none?: ItemWhereInput
 }
 
 export interface FileCreateWithoutUserPhotoInput {
@@ -1977,14 +2093,27 @@ export interface FileCreateWithoutUserPhotoInput {
   url: String
 }
 
-export interface UserCreateOneWithoutPhotoInput {
-  create?: UserCreateWithoutPhotoInput
-  connect?: UserWhereUniqueInput
+export interface ProductUpsertWithoutItemInput {
+  update: ProductUpdateWithoutItemDataInput
+  create: ProductCreateWithoutItemInput
 }
 
 export interface BookingCreateManyWithoutUserBookingInput {
   create?: BookingCreateWithoutUserBookingInput[] | BookingCreateWithoutUserBookingInput
   connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+}
+
+export interface UserCreateOneWithoutPhotoInput {
+  create?: UserCreateWithoutPhotoInput
+  connect?: UserWhereUniqueInput
+}
+
+export interface BookingCreateWithoutUserBookingInput {
+  forDate: DateTime
+  toData?: DateTime
+  status?: BookingStatus
+  pesanan?: BookingCreatepesananInput
+  items?: ItemCreateManyWithoutBookingInput
 }
 
 export interface ItemWhereInput {
@@ -2017,9 +2146,8 @@ export interface ItemWhereInput {
   booking?: BookingWhereInput
 }
 
-export interface BookingCreateWithoutUserBookingInput {
-  status?: BookingStatus
-  items?: ItemCreateManyWithoutBookingInput
+export interface BookingCreatepesananInput {
+  set?: DateTime[] | DateTime
 }
 
 export interface BookingWhereInput {
@@ -2056,6 +2184,22 @@ export interface BookingWhereInput {
   updatedAt_lte?: DateTime
   updatedAt_gt?: DateTime
   updatedAt_gte?: DateTime
+  forDate?: DateTime
+  forDate_not?: DateTime
+  forDate_in?: DateTime[] | DateTime
+  forDate_not_in?: DateTime[] | DateTime
+  forDate_lt?: DateTime
+  forDate_lte?: DateTime
+  forDate_gt?: DateTime
+  forDate_gte?: DateTime
+  toData?: DateTime
+  toData_not?: DateTime
+  toData_in?: DateTime[] | DateTime
+  toData_not_in?: DateTime[] | DateTime
+  toData_lt?: DateTime
+  toData_lte?: DateTime
+  toData_gt?: DateTime
+  toData_gte?: DateTime
   status?: BookingStatus
   status_not?: BookingStatus
   status_in?: BookingStatus[] | BookingStatus
@@ -2085,6 +2229,177 @@ export interface BookingSubscriptionWhereInput {
 export interface ItemCreateWithoutBookingInput {
   amount: Int
   product: ProductCreateOneWithoutItemInput
+}
+
+export interface UserSubscriptionWhereInput {
+  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+  NOT?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: UserWhereInput
+}
+
+export interface ProductCreateOneWithoutItemInput {
+  create?: ProductCreateWithoutItemInput
+  connect?: ProductWhereUniqueInput
+}
+
+export interface BookingWhereUniqueInput {
+  id?: ID_Input
+}
+
+export interface ProductCreateWithoutItemInput {
+  name: String
+  stock: Int
+}
+
+export interface ProductWhereUniqueInput {
+  id?: ID_Input
+}
+
+export interface BookingCreateInput {
+  forDate: DateTime
+  toData?: DateTime
+  status?: BookingStatus
+  pesanan?: BookingCreatepesananInput
+  items?: ItemCreateManyWithoutBookingInput
+  userBooking?: UserCreateOneWithoutBookingInput
+}
+
+export interface UserUpsertWithoutPhotoInput {
+  update: UserUpdateWithoutPhotoDataInput
+  create: UserCreateWithoutPhotoInput
+}
+
+export interface UserCreateOneWithoutBookingInput {
+  create?: UserCreateWithoutBookingInput
+  connect?: UserWhereUniqueInput
+}
+
+export interface UserUpdateOneWithoutPhotoInput {
+  create?: UserCreateWithoutPhotoInput
+  connect?: UserWhereUniqueInput
+  disconnect?: Boolean
+  delete?: Boolean
+  update?: UserUpdateWithoutPhotoDataInput
+  upsert?: UserUpsertWithoutPhotoInput
+}
+
+export interface UserCreateWithoutBookingInput {
+  name: String
+  email: String
+  password: String
+  role?: Role
+  photo?: FileCreateOneWithoutUserPhotoInput
+}
+
+export interface ItemUpsertWithWhereUniqueWithoutProductInput {
+  where: ItemWhereUniqueInput
+  update: ItemUpdateWithoutProductDataInput
+  create: ItemCreateWithoutProductInput
+}
+
+export interface ItemCreateInput {
+  amount: Int
+  product: ProductCreateOneWithoutItemInput
+  booking: BookingCreateOneWithoutItemsInput
+}
+
+export interface ItemUpdateWithWhereUniqueWithoutProductInput {
+  where: ItemWhereUniqueInput
+  data: ItemUpdateWithoutProductDataInput
+}
+
+export interface BookingUpsertWithWhereUniqueWithoutUserBookingInput {
+  where: BookingWhereUniqueInput
+  update: BookingUpdateWithoutUserBookingDataInput
+  create: BookingCreateWithoutUserBookingInput
+}
+
+export interface ProductUpdateInput {
+  name?: String
+  stock?: Int
+  item?: ItemUpdateManyWithoutProductInput
+}
+
+export interface BookingCreateWithoutItemsInput {
+  forDate: DateTime
+  toData?: DateTime
+  status?: BookingStatus
+  pesanan?: BookingCreatepesananInput
+  userBooking?: UserCreateOneWithoutBookingInput
+}
+
+export interface BookingUpdateWithoutItemsDataInput {
+  forDate?: DateTime
+  toData?: DateTime
+  status?: BookingStatus
+  pesanan?: BookingUpdatepesananInput
+  userBooking?: UserUpdateOneWithoutBookingInput
+}
+
+export interface ProductCreateInput {
+  name: String
+  stock: Int
+  item?: ItemCreateManyWithoutProductInput
+}
+
+export interface ItemUpdateInput {
+  amount?: Int
+  product?: ProductUpdateOneWithoutItemInput
+  booking?: BookingUpdateOneWithoutItemsInput
+}
+
+export interface ItemCreateManyWithoutProductInput {
+  create?: ItemCreateWithoutProductInput[] | ItemCreateWithoutProductInput
+  connect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
+}
+
+export interface UserUpdateWithoutBookingDataInput {
+  name?: String
+  email?: String
+  password?: String
+  role?: Role
+  photo?: FileUpdateOneWithoutUserPhotoInput
+}
+
+export interface ItemCreateWithoutProductInput {
+  amount: Int
+  booking: BookingCreateOneWithoutItemsInput
+}
+
+export interface BookingUpdateInput {
+  forDate?: DateTime
+  toData?: DateTime
+  status?: BookingStatus
+  pesanan?: BookingUpdatepesananInput
+  items?: ItemUpdateManyWithoutBookingInput
+  userBooking?: UserUpdateOneWithoutBookingInput
+}
+
+export interface ItemUpsertWithWhereUniqueWithoutBookingInput {
+  where: ItemWhereUniqueInput
+  update: ItemUpdateWithoutBookingDataInput
+  create: ItemCreateWithoutBookingInput
+}
+
+export interface FileCreateOneWithoutUserPhotoInput {
+  create?: FileCreateWithoutUserPhotoInput
+  connect?: FileWhereUniqueInput
+}
+
+export interface ProductSubscriptionWhereInput {
+  AND?: ProductSubscriptionWhereInput[] | ProductSubscriptionWhereInput
+  OR?: ProductSubscriptionWhereInput[] | ProductSubscriptionWhereInput
+  NOT?: ProductSubscriptionWhereInput[] | ProductSubscriptionWhereInput
+  mutation_in?: MutationType[] | MutationType
+  updatedFields_contains?: String
+  updatedFields_contains_every?: String[] | String
+  updatedFields_contains_some?: String[] | String
+  node?: ProductWhereInput
 }
 
 export interface FileWhereInput {
@@ -2180,81 +2495,54 @@ export interface FileWhereInput {
   userPhoto?: UserWhereInput
 }
 
-export interface ProductCreateOneWithoutItemInput {
-  create?: ProductCreateWithoutItemInput
-  connect?: ProductWhereUniqueInput
-}
-
-export interface BookingWhereUniqueInput {
-  id?: ID_Input
-}
-
-export interface ProductCreateWithoutItemInput {
-  name: String
-  stock: Int
-}
-
-export interface ProductWhereUniqueInput {
-  id?: ID_Input
-}
-
-export interface BookingCreateInput {
-  status?: BookingStatus
-  items?: ItemCreateManyWithoutBookingInput
-  userBooking?: UserCreateOneWithoutBookingInput
-}
-
-export interface UserUpsertWithoutPhotoInput {
-  update: UserUpdateWithoutPhotoDataInput
-  create: UserCreateWithoutPhotoInput
-}
-
-export interface UserCreateOneWithoutBookingInput {
-  create?: UserCreateWithoutBookingInput
-  connect?: UserWhereUniqueInput
-}
-
-export interface UserUpdateOneWithoutPhotoInput {
-  create?: UserCreateWithoutPhotoInput
-  connect?: UserWhereUniqueInput
-  disconnect?: Boolean
-  delete?: Boolean
-  update?: UserUpdateWithoutPhotoDataInput
-  upsert?: UserUpsertWithoutPhotoInput
-}
-
-export interface UserCreateWithoutBookingInput {
+export interface UserCreateWithoutPhotoInput {
   name: String
   email: String
   password: String
   role?: Role
-  photo?: FileCreateOneWithoutUserPhotoInput
+  booking?: BookingCreateManyWithoutUserBookingInput
 }
 
-export interface ItemUpsertWithoutProductInput {
-  update: ItemUpdateWithoutProductDataInput
-  create: ItemCreateWithoutProductInput
+export interface ItemWhereUniqueInput {
+  id?: ID_Input
 }
 
-export interface ItemCreateInput {
-  amount: Int
-  product: ProductCreateOneWithoutItemInput
-  booking: BookingCreateOneWithoutItemsInput
+export interface UserUpdateInput {
+  name?: String
+  email?: String
+  password?: String
+  role?: Role
+  photo?: FileUpdateOneWithoutUserPhotoInput
+  booking?: BookingUpdateManyWithoutUserBookingInput
 }
 
-export interface ItemUpdateOneWithoutProductInput {
-  create?: ItemCreateWithoutProductInput
-  connect?: ItemWhereUniqueInput
+export interface UserUpdateWithoutPhotoDataInput {
+  name?: String
+  email?: String
+  password?: String
+  role?: Role
+  booking?: BookingUpdateManyWithoutUserBookingInput
+}
+
+export interface FileUpdateOneWithoutUserPhotoInput {
+  create?: FileCreateWithoutUserPhotoInput
+  connect?: FileWhereUniqueInput
   disconnect?: Boolean
   delete?: Boolean
-  update?: ItemUpdateWithoutProductDataInput
-  upsert?: ItemUpsertWithoutProductInput
+  update?: FileUpdateWithoutUserPhotoDataInput
+  upsert?: FileUpsertWithoutUserPhotoInput
 }
 
-export interface ItemUpsertWithWhereUniqueWithoutBookingInput {
-  where: ItemWhereUniqueInput
-  update: ItemUpdateWithoutBookingDataInput
-  create: ItemCreateWithoutBookingInput
+export interface ItemUpdateWithoutProductDataInput {
+  amount?: Int
+  booking?: BookingUpdateOneWithoutItemsInput
+}
+
+export interface FileUpdateWithoutUserPhotoDataInput {
+  filename?: String
+  mimetype?: String
+  encoding?: String
+  url?: String
 }
 
 export interface BookingUpsertWithoutItemsInput {
@@ -2262,23 +2550,9 @@ export interface BookingUpsertWithoutItemsInput {
   create: BookingCreateWithoutItemsInput
 }
 
-export interface BookingCreateWithoutItemsInput {
-  status?: BookingStatus
-  userBooking?: UserCreateOneWithoutBookingInput
-}
-
-export interface BookingUpdateOneWithoutItemsInput {
-  create?: BookingCreateWithoutItemsInput
-  connect?: BookingWhereUniqueInput
-  delete?: Boolean
-  update?: BookingUpdateWithoutItemsDataInput
-  upsert?: BookingUpsertWithoutItemsInput
-}
-
-export interface ProductCreateInput {
-  name: String
-  stock: Int
-  item?: ItemCreateOneWithoutProductInput
+export interface FileUpsertWithoutUserPhotoInput {
+  update: FileUpdateWithoutUserPhotoDataInput
+  create: FileCreateWithoutUserPhotoInput
 }
 
 export interface UserUpsertWithoutBookingInput {
@@ -2286,45 +2560,27 @@ export interface UserUpsertWithoutBookingInput {
   create: UserCreateWithoutBookingInput
 }
 
-export interface ItemCreateOneWithoutProductInput {
-  create?: ItemCreateWithoutProductInput
-  connect?: ItemWhereUniqueInput
+export interface BookingUpdateManyWithoutUserBookingInput {
+  create?: BookingCreateWithoutUserBookingInput[] | BookingCreateWithoutUserBookingInput
+  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  disconnect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  delete?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
+  update?: BookingUpdateWithWhereUniqueWithoutUserBookingInput[] | BookingUpdateWithWhereUniqueWithoutUserBookingInput
+  upsert?: BookingUpsertWithWhereUniqueWithoutUserBookingInput[] | BookingUpsertWithWhereUniqueWithoutUserBookingInput
 }
 
-export interface UserUpdateOneWithoutBookingInput {
-  create?: UserCreateWithoutBookingInput
-  connect?: UserWhereUniqueInput
-  disconnect?: Boolean
-  delete?: Boolean
-  update?: UserUpdateWithoutBookingDataInput
-  upsert?: UserUpsertWithoutBookingInput
+export interface UserCreateInput {
+  name: String
+  email: String
+  password: String
+  role?: Role
+  photo?: FileCreateOneWithoutUserPhotoInput
+  booking?: BookingCreateManyWithoutUserBookingInput
 }
 
-export interface ItemCreateWithoutProductInput {
-  amount: Int
-  booking: BookingCreateOneWithoutItemsInput
-}
-
-export interface BookingUpsertWithWhereUniqueWithoutUserBookingInput {
+export interface BookingUpdateWithWhereUniqueWithoutUserBookingInput {
   where: BookingWhereUniqueInput
-  update: BookingUpdateWithoutUserBookingDataInput
-  create: BookingCreateWithoutUserBookingInput
-}
-
-export interface ProductUpsertWithoutItemInput {
-  update: ProductUpdateWithoutItemDataInput
-  create: ProductCreateWithoutItemInput
-}
-
-export interface FileSubscriptionWhereInput {
-  AND?: FileSubscriptionWhereInput[] | FileSubscriptionWhereInput
-  OR?: FileSubscriptionWhereInput[] | FileSubscriptionWhereInput
-  NOT?: FileSubscriptionWhereInput[] | FileSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: FileWhereInput
+  data: BookingUpdateWithoutUserBookingDataInput
 }
 
 export interface ItemSubscriptionWhereInput {
@@ -2338,17 +2594,12 @@ export interface ItemSubscriptionWhereInput {
   node?: ItemWhereInput
 }
 
-export interface UserWhereUniqueInput {
-  id?: ID_Input
-  email?: String
-}
-
-export interface UserCreateWithoutPhotoInput {
-  name: String
-  email: String
-  password: String
-  role?: Role
-  booking?: BookingCreateManyWithoutUserBookingInput
+export interface BookingUpdateWithoutUserBookingDataInput {
+  forDate?: DateTime
+  toData?: DateTime
+  status?: BookingStatus
+  pesanan?: BookingUpdatepesananInput
+  items?: ItemUpdateManyWithoutBookingInput
 }
 
 export interface FileWhereUniqueInput {
@@ -2356,99 +2607,40 @@ export interface FileWhereUniqueInput {
   url?: String
 }
 
-export interface UserUpdateInput {
-  name?: String
-  email?: String
-  password?: String
-  role?: Role
-  photo?: FileUpdateOneWithoutUserPhotoInput
-  booking?: BookingUpdateManyWithoutUserBookingInput
+export interface BookingUpdatepesananInput {
+  set?: DateTime[] | DateTime
 }
 
-export interface FileUpdateInput {
-  filename?: String
-  mimetype?: String
-  encoding?: String
-  url?: String
-  userPhoto?: UserUpdateOneWithoutPhotoInput
+export interface ItemUpdateManyWithoutProductInput {
+  create?: ItemCreateWithoutProductInput[] | ItemCreateWithoutProductInput
+  connect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
+  disconnect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
+  delete?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
+  update?: ItemUpdateWithWhereUniqueWithoutProductInput[] | ItemUpdateWithWhereUniqueWithoutProductInput
+  upsert?: ItemUpsertWithWhereUniqueWithoutProductInput[] | ItemUpsertWithWhereUniqueWithoutProductInput
 }
 
-export interface FileUpdateOneWithoutUserPhotoInput {
-  create?: FileCreateWithoutUserPhotoInput
-  connect?: FileWhereUniqueInput
+export interface ItemUpdateManyWithoutBookingInput {
+  create?: ItemCreateWithoutBookingInput[] | ItemCreateWithoutBookingInput
+  connect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
+  disconnect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
+  delete?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
+  update?: ItemUpdateWithWhereUniqueWithoutBookingInput[] | ItemUpdateWithWhereUniqueWithoutBookingInput
+  upsert?: ItemUpsertWithWhereUniqueWithoutBookingInput[] | ItemUpsertWithWhereUniqueWithoutBookingInput
+}
+
+export interface UserUpdateOneWithoutBookingInput {
+  create?: UserCreateWithoutBookingInput
+  connect?: UserWhereUniqueInput
   disconnect?: Boolean
   delete?: Boolean
-  update?: FileUpdateWithoutUserPhotoDataInput
-  upsert?: FileUpsertWithoutUserPhotoInput
+  update?: UserUpdateWithoutBookingDataInput
+  upsert?: UserUpsertWithoutBookingInput
 }
 
-export interface ProductUpdateInput {
+export interface ProductUpdateWithoutItemDataInput {
   name?: String
   stock?: Int
-  item?: ItemUpdateOneWithoutProductInput
-}
-
-export interface FileUpdateWithoutUserPhotoDataInput {
-  filename?: String
-  mimetype?: String
-  encoding?: String
-  url?: String
-}
-
-export interface ItemUpdateInput {
-  amount?: Int
-  product?: ProductUpdateOneWithoutItemInput
-  booking?: BookingUpdateOneWithoutItemsInput
-}
-
-export interface FileUpsertWithoutUserPhotoInput {
-  update: FileUpdateWithoutUserPhotoDataInput
-  create: FileCreateWithoutUserPhotoInput
-}
-
-export interface BookingUpdateInput {
-  status?: BookingStatus
-  items?: ItemUpdateManyWithoutBookingInput
-  userBooking?: UserUpdateOneWithoutBookingInput
-}
-
-export interface BookingUpdateManyWithoutUserBookingInput {
-  create?: BookingCreateWithoutUserBookingInput[] | BookingCreateWithoutUserBookingInput
-  connect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
-  disconnect?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
-  delete?: BookingWhereUniqueInput[] | BookingWhereUniqueInput
-  update?: BookingUpdateWithWhereUniqueWithoutUserBookingInput[] | BookingUpdateWithWhereUniqueWithoutUserBookingInput
-  upsert?: BookingUpsertWithWhereUniqueWithoutUserBookingInput[] | BookingUpsertWithWhereUniqueWithoutUserBookingInput
-}
-
-export interface ProductSubscriptionWhereInput {
-  AND?: ProductSubscriptionWhereInput[] | ProductSubscriptionWhereInput
-  OR?: ProductSubscriptionWhereInput[] | ProductSubscriptionWhereInput
-  NOT?: ProductSubscriptionWhereInput[] | ProductSubscriptionWhereInput
-  mutation_in?: MutationType[] | MutationType
-  updatedFields_contains?: String
-  updatedFields_contains_every?: String[] | String
-  updatedFields_contains_some?: String[] | String
-  node?: ProductWhereInput
-}
-
-export interface BookingUpdateWithWhereUniqueWithoutUserBookingInput {
-  where: BookingWhereUniqueInput
-  data: BookingUpdateWithoutUserBookingDataInput
-}
-
-export interface ItemWhereUniqueInput {
-  id?: ID_Input
-}
-
-export interface BookingUpdateWithoutUserBookingDataInput {
-  status?: BookingStatus
-  items?: ItemUpdateManyWithoutBookingInput
-}
-
-export interface ItemUpdateWithoutProductDataInput {
-  amount?: Int
-  booking?: BookingUpdateOneWithoutItemsInput
 }
 
 export interface ProductUpdateOneWithoutItemInput {
@@ -2469,54 +2661,36 @@ export interface ItemUpdateWithWhereUniqueWithoutBookingInput {
   data: ItemUpdateWithoutBookingDataInput
 }
 
-export interface ItemUpdateManyWithoutBookingInput {
-  create?: ItemCreateWithoutBookingInput[] | ItemCreateWithoutBookingInput
-  connect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
-  disconnect?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
-  delete?: ItemWhereUniqueInput[] | ItemWhereUniqueInput
-  update?: ItemUpdateWithWhereUniqueWithoutBookingInput[] | ItemUpdateWithWhereUniqueWithoutBookingInput
-  upsert?: ItemUpsertWithWhereUniqueWithoutBookingInput[] | ItemUpsertWithWhereUniqueWithoutBookingInput
-}
-
-export interface BookingUpdateWithoutItemsDataInput {
-  status?: BookingStatus
-  userBooking?: UserUpdateOneWithoutBookingInput
-}
-
-export interface UserUpdateWithoutPhotoDataInput {
-  name?: String
-  email?: String
-  password?: String
-  role?: Role
-  booking?: BookingUpdateManyWithoutUserBookingInput
-}
-
-export interface UserSubscriptionWhereInput {
-  AND?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
-  OR?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
-  NOT?: UserSubscriptionWhereInput[] | UserSubscriptionWhereInput
+export interface FileSubscriptionWhereInput {
+  AND?: FileSubscriptionWhereInput[] | FileSubscriptionWhereInput
+  OR?: FileSubscriptionWhereInput[] | FileSubscriptionWhereInput
+  NOT?: FileSubscriptionWhereInput[] | FileSubscriptionWhereInput
   mutation_in?: MutationType[] | MutationType
   updatedFields_contains?: String
   updatedFields_contains_every?: String[] | String
   updatedFields_contains_some?: String[] | String
-  node?: UserWhereInput
+  node?: FileWhereInput
 }
 
-export interface UserCreateInput {
-  name: String
-  email: String
-  password: String
-  role?: Role
-  photo?: FileCreateOneWithoutUserPhotoInput
-  booking?: BookingCreateManyWithoutUserBookingInput
+export interface BookingUpdateOneWithoutItemsInput {
+  create?: BookingCreateWithoutItemsInput
+  connect?: BookingWhereUniqueInput
+  delete?: Boolean
+  update?: BookingUpdateWithoutItemsDataInput
+  upsert?: BookingUpsertWithoutItemsInput
 }
 
-export interface UserUpdateWithoutBookingDataInput {
-  name?: String
+export interface FileUpdateInput {
+  filename?: String
+  mimetype?: String
+  encoding?: String
+  url?: String
+  userPhoto?: UserUpdateOneWithoutPhotoInput
+}
+
+export interface UserWhereUniqueInput {
+  id?: ID_Input
   email?: String
-  password?: String
-  role?: Role
-  photo?: FileUpdateOneWithoutUserPhotoInput
 }
 
 /*
@@ -2552,6 +2726,7 @@ export interface User extends Node {
   name: String
   email: String
   password: String
+  createdAt: DateTime
   photo?: File
   role: Role
   booking?: Booking[]
@@ -2580,6 +2755,9 @@ export interface Booking extends Node {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
+  forDate: DateTime
+  toData?: DateTime
+  pesanan: DateTime[]
   items?: Item[]
   status: BookingStatus
   userBooking?: User
@@ -2666,6 +2844,7 @@ export interface UserPreviousValues {
   name: String
   email: String
   password: String
+  createdAt: DateTime
   role: Role
 }
 
@@ -2682,7 +2861,7 @@ export interface Product extends Node {
   id: ID_Output
   name: String
   stock: Int
-  item?: Item
+  item?: Item[]
 }
 
 /*
@@ -2739,6 +2918,9 @@ export interface BookingPreviousValues {
   id: ID_Output
   createdAt: DateTime
   updatedAt: DateTime
+  forDate: DateTime
+  toData?: DateTime
+  pesanan: DateTime[]
   status: BookingStatus
 }
 
