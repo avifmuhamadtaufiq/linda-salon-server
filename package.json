@@ -1,4 +1,5 @@
 {
+  "version": "1.0.0",
   "name": "linda-salon-server",
   "scripts": {
     "start:local": "dotenv -e .env.local -- nodemon -e ts,graphql -x ts-node src/index.ts",

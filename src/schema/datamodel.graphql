@@ -2,33 +2,46 @@
 # Essentially, all of these types become database tables
 
 type User {
-  id: ID! 
-  email: String!
+  id: ID!
   name: String!
-  # photo: File
+  email: String!
+  password: String! 
+  photo: UserPhoto 
   role: Role! @default(value: "CUSTOMER")
+  bookings: [Booking!]!
 }
 
-type Tester {
-  date: DateTime!
-}
-
-
-type File {
-  id: ID! 
+type UserPhoto {
+  id: ID!
+  key: String!
   filename: String!
   mimetype: String!
-  url: String!
-  userPhoto: User
+  encoding: String!
+  url: String! 
+  userPhoto: User 
+}
+
+type ProductPhoto {
+  id: ID!
+  key: String!
+  filename: String!
+  mimetype: String!
+  encoding: String!
+  url: String! 
+  Product: Product 
+}
+
+type OnDeleteResponse {
+  success: Boolean!
 }
 
 type Booking {
   id: ID! 
-  createdAt: DateTime!
-  updatedAt: DateTime!
-  forDate: DateTime!
-  toData: DateTime
-  pesanan: [DateTime!]!
+  startDate: DateTime!
+  endDate: DateTime
+  noWhatsApp: String
+  address: String
+  message: String
   items: [Item!]! 
   status: BookingStatus! 
   userBooking: User 
@@ -37,21 +50,82 @@ type Booking {
 type Item {
   id: ID! 
   amount: Int!
-  product: Product! 
+  product: Product!
   booking: Booking!
 }
 
 type Product {
-  id: ID! 
+  id: ID!
   name: String!
+  description: String!
+  tag: ProductTag!
   stock: Int!
-  item: Item 
+  photo: ProductPhoto
+  item: [Item!]!
+  price: Int!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+type ProductEdge {
+  node: Product!
+  cursor: String!
+}
+
+type UserEdge {
+  node: User!
+  cursor: String!
+}
+
+type BookingEdge {
+  node: Booking!
+  cursor: String!
+}
+
+type AggregateProduct {
+  count: Int!
+}
+
+type AggregateUser {
+  count: Int!
+}
+
+type AggregateBooking {
+  count: Int!
+}
+
+type ProductsConnection {
+  pageInfo: PageInfo!
+  edges: [ProductEdge]!
+  aggregate: AggregateProduct!
+}
+
+type BookingConnection {
+  pageInfo: PageInfo!
+  edges: [BookingEdge]!
+  aggregate: AggregateBooking!
+}
+
+type UsersConnection {
+  pageInfo: PageInfo!
+  edges: [UserEdge]!
+  aggregate: AggregateUser!
 }
 
 enum BookingStatus {
-  PENDING,
+  CREATED,
+  SEND,
   PROCCESS,
-  PAID
+  SUCCESS,
+}
+
+enum ProductTag {
+  BARANG,
+  PAKETWEDDING
 }
 
 enum Role {

@@ -64,6 +64,9 @@ export const length = (xs: any[]) => reduce(xs, (memo, x) => memo + 1, 0);
 // creates a new array with the results of calling a provided function on every element in this array.
 export const map = (xs: any[], fn: Function) => reduce(xs, (memo, x) => [...memo, fn(x)], []);
 
+// map with arg
+export const mapWithArgs = (xs: any[], fn: Function, arg1?: any, arg2?: any) => reduce(xs, (memo, x) => [...memo, fn(x, arg1, arg2)], []);
+
 // creates a new array with all elements that pass the test implemented by the provided function.
 export const filter = (xs: any[], fn: Function) =>
   reduce(xs, (memo, x) => (fn(x) ? [...memo, x] : [...memo]), []);
